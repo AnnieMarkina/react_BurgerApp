@@ -2,6 +2,8 @@ import React from 'react';
 import Aux from '../../HOC/Aux';
 import Burger from '../../Components/Burger/Burger';
 import BuildControls from '../../Components/Burger/BuildControls/BuildControls';
+import Modal from '../../Components/UI/Modal/Modal';
+import OrderSummary from '../../Components/Burger/OrderSummary/OrderSummary';
 
 const INGREDIENT_PRICES = {
 	salad: 0.5,
@@ -19,6 +21,20 @@ class BurgerBuilder extends React.Component {
 			meat: 0,
 		},
 		totalPrice: 4,
+		purchasable: false,
+		purchasing: false,
+	}
+
+	updatePurchaseState = (ingredients) => {
+		const sum = Object.keys(ingredients)
+			.map(item => {
+				return ingredients[item];
+			}).reduce((sum, el) => {
+				return sum + el;
+			}, 0);
+			this.setState({
+				purchasable: sum > 0,
+			});
 	}
 
 	addIngredientsHandler = (type) => {
@@ -30,12 +46,13 @@ class BurgerBuilder extends React.Component {
 		updatedIngredients[type] = updatedCount;
 		const priceAddition = INGREDIENT_PRICES[type];
 		const oldPrice = this.state.totalPrice;
-		const newPrice = oldPrice + priceAddition; 
+		const newPrice = oldPrice + priceAddition;
 
 		this.setState({
 			ingredients: updatedIngredients,
 			totalPrice: newPrice,
 		});
+		this.updatePurchaseState(updatedIngredients);
 	}
 
 	removeIngredientsHandler = (type) => {
@@ -50,20 +67,24 @@ class BurgerBuilder extends React.Component {
 		updatedIngredients[type] = updatedCount;
 		const priceDeduction = INGREDIENT_PRICES[type];
 		const oldPrice = this.state.totalPrice;
-		const newPrice = oldPrice - priceDeduction; 
+		const newPrice = oldPrice - priceDeduction;
 
 		this.setState({
 			ingredients: updatedIngredients,
 			totalPrice: newPrice,
 		});
+		this.updatePurchaseState(updatedIngredients); 
+	}
+
+	purchaseHandler = () => {
+		this.setState({  purchasing: true });
 	}
 
 	render() {
-		const { ingredients } = this.state;
-		const { totalPrice } = this.state; 
+		const { ingredients, totalPrice, purchasable, purchasing } = this.state;
 		const disabledInfo = {
 			...ingredients
-		};		
+		};
 
 		for (let key in disabledInfo) {
 			disabledInfo[key] = disabledInfo[key] <= 0;
@@ -71,12 +92,17 @@ class BurgerBuilder extends React.Component {
 
 		return (
 			<Aux>
+				<Modal show={purchasing}>
+					<OrderSummary ingredients={ingredients} />
+				</Modal>
 				<Burger ingredients={ingredients} />
 				<BuildControls
 					ingredientAdded={this.addIngredientsHandler}
 					ingredientRemoved={this.removeIngredientsHandler}
 					disabled={disabledInfo}
 					price={totalPrice}
+					purchasable={purchasable}
+					ordered={this.purchaseHandler}
 				/>
 			</Aux>
 		);

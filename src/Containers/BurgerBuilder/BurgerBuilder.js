@@ -32,9 +32,9 @@ class BurgerBuilder extends React.Component {
 			}).reduce((sum, el) => {
 				return sum + el;
 			}, 0);
-			this.setState({
-				purchasable: sum > 0,
-			});
+		this.setState({
+			purchasable: sum > 0,
+		});
 	}
 
 	addIngredientsHandler = (type) => {
@@ -73,11 +73,19 @@ class BurgerBuilder extends React.Component {
 			ingredients: updatedIngredients,
 			totalPrice: newPrice,
 		});
-		this.updatePurchaseState(updatedIngredients); 
+		this.updatePurchaseState(updatedIngredients);
 	}
 
 	purchaseHandler = () => {
-		this.setState({  purchasing: true });
+		this.setState({ purchasing: true });
+	}
+
+	purchaseCancelHandler = () => {
+		this.setState({ purchasing: false });
+	}
+
+	purchaseContinueHandler = () => {
+		alert('You continue!');
 	}
 
 	render() {
@@ -92,10 +100,21 @@ class BurgerBuilder extends React.Component {
 
 		return (
 			<Aux>
-				<Modal show={purchasing}>
-					<OrderSummary ingredients={ingredients} />
+				
+				<Modal
+					show={purchasing}
+					modalClosed={this.purchaseCancelHandler}
+				>
+					<OrderSummary
+						ingredients={ingredients}
+						purchaseCancelled={this.purchaseCancelHandler}
+						purchaseContinued={this.purchaseContinueHandler}
+						price={totalPrice}
+					/>
 				</Modal>
+
 				<Burger ingredients={ingredients} />
+
 				<BuildControls
 					ingredientAdded={this.addIngredientsHandler}
 					ingredientRemoved={this.removeIngredientsHandler}
@@ -104,6 +123,7 @@ class BurgerBuilder extends React.Component {
 					purchasable={purchasable}
 					ordered={this.purchaseHandler}
 				/>
+
 			</Aux>
 		);
 	}

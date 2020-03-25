@@ -9,10 +9,7 @@ const BuildControl = (props) => {
 				{props.label}
 			</div>
 
-			<button
-				className={classes.More}
-				onClick={props.added}
-			>
+			<button className={classes.More} onClick={props.added}>
 				More
 			</button>
 
